@@ -23,20 +23,11 @@ The MPI version works great for small experiments and prototyping while the seco
 
 The algorithm is very insensitive to the values of ``L, gamma, rho`` and the only important hyper-parameter is the learning rate ``lr``. It is advisable to set ``lr`` to be the same as SGD. The number of epochs ``B`` for Parle is typically much smaller than SGD and 5-10 epochs are sufficient to train on MNIST or CIFAR-10/100.
 
-#### MPI version
-1. Run the python file
-    ```
-    python parle_mpi.py -h
-    ```
-    to get a list of all arguments and defaults. You can train LeNet on MNIST with 3 replicas using
+1. Execute ``python parle_mpi.py -h`` to get a list of all arguments and defaults. You can train LeNet on MNIST with 3 replicas using
     ```
     python parle_mpi.py -n 3
     ```
-2. Run the python file
-    ```
-    python parle.py -h
-    ```
-    to get a list of all arguments and defaults. You can train All-CNN on CIFAR-10 with 3 replicas using
+2. Execute ``python parle.py -h`` to get a list of all arguments and defaults. You can train All-CNN on CIFAR-10 with 3 replicas using
     ```
     python parle.py -n 3 -m allcnn
     ```
