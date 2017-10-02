@@ -2,6 +2,10 @@
 
 This is the code for [Parle: parallel training of deep neural networks](https://arxiv.org/abs/1707.00424). This paper demonstrates an algorithm for parallel training of deep neural networks. In constrast to other techniques, we train multiple copies of the same network, called as "replicas" in parallel with special coupling terms between their loss function to obtain improved generalization performance over a single network as well as 2-4x faster convergence over a data-parallel implementation of SGD for a single network.
 
+<p align="center">
+<img src="https://i.imgur.com/KZlZ3Nw.jpg" width="350">
+</p>
+
 We have two versions, both of which are written using [PyTorch](http://pytorch.org):
 
 - A parallel version that uses MPI (mpi4py) for synchronizing weights.
@@ -24,4 +28,15 @@ The algorithm is very insensitive to the values of ``L, gamma, rho`` and the onl
     ```
     python parle_mpi.py -h
     ```
-    to get a list of all arguments and defaults. 
+    to get a list of all arguments and defaults. You can train LeNet on MNIST with 3 replicas using
+    ```
+    python parle_mpi.py -n 3
+    ```
+2. Run the python file
+    ```
+    python parle.py -h
+    ```
+    to get a list of all arguments and defaults. You can train All-CNN on CIFAR-10 with 3 replicas using
+    ```
+    python parle.py -n 3 -m allcnn
+    ```
