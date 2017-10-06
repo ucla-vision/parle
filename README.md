@@ -2,6 +2,8 @@
 
 This is the code for [Parle: parallel training of deep neural networks](https://arxiv.org/abs/1707.00424). We demonstrate an algorithm for parallel training of deep neural networks which trains multiple copies of the same network in parallel, called as "replicas", with special coupling upon their weights to obtain significantly improved generalization performance over a single network as well as 2-4x faster convergence over a data-parallel implementation of SGD for a single network.
 
+### High-performance multi-GPU version coming soon!
+
 <p align="center">
 <img src="https://i.imgur.com/KZlZ3Nw.jpg" width="350">
 </p>
