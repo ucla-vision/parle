@@ -34,6 +34,11 @@ The algorithm is very insensitive to the values of ``L, gamma, rho`` and the onl
     python parle.py -n 3 -m allcnn
     ```
 
+You can run the MPI version using:
+```
+mpirun -n 12 python parle.py
+```
+
 ### Special cases
 1. Setting ``n=1, L=1, gamma=0, rho=0`` makes Parle equivalent to SGD; the implementation here uses Nesterov's momentum.
 2. Setting ``n=1, rho=0`` decouples the replicas from the master. In this case, Parle becomes equivalent to executing [Entropy-SGD: biasing gradient descent into wide valleys](https://arxiv.org/abs/1611.01838); see the code for the latter [here](https://github.com/ucla-vision/entropy-sgd).
