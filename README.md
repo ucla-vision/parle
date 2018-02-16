@@ -24,7 +24,7 @@ Parle is **very insensitive to hyper-parameters**. A description for some of the
 - ``gamma`` controls how far successive gradient updates on each replica are allowed to go from the previous checkpoint, i.e., the last instant when weights were synchronized with the master. This is the same as the step-size in proximal point iteration.
 - ``rho`` controls how far each replica moves from the master. The weights of the master are the average of the weights of all the replicas while each replica gets pulled towards this average with a force that is proportional to ``rho``.
 - ``L`` is the number of gradient updates performed on each replica (worker) before synchronizing the weights with the master. You can safely fix this to 25. Alternatively, you set this to ``L = gamma x lr`` which has the advantage of being slightly faster towards the end of training.
-Proximal point iteration is insensitive to both ``gamma`` and ``rho`` and the above code uses a default decaying schedules for these, which should typically work. In particular, we set ``gamma = rho = 100*(1-/(2 nb)^(k/L)`` where ``nb`` is the number of mini-batches per epoch and ``k`` is the current iteration number. ``L`` is the number of weight updates per synchronization, as above.
+- Proximal point iteration is insensitive to both ``gamma`` and ``rho`` and the above code uses a default decaying schedules for these, which should typically work. In particular, we set ``gamma = rho = 100*(1-/(2 nb)^(k/L)`` where ``nb`` is the number of mini-batches per epoch and ``k`` is the current iteration number. ``L`` is the number of weight updates per synchronization, as above.
 - ``n`` is the number of replicas. The code distributes these replicas on all available GPUs. For the MPI version, this is controlled by ``MPI.RANK``. In general, larger the ``n``, the better Parle works. Each replica can itself be data-parallel using multiple GPUs.
 
 The number of epochs ``B`` for Parle is typically much smaller than SGD and 5-10 epochs are sufficient to train on MNIST or CIFAR-10/100.
@@ -40,7 +40,7 @@ The number of epochs ``B`` for Parle is typically much smaller than SGD and 5-10
 3. You can run the MPI version with 12 replicas as
 
     ```
-    mpirun -n 12 python parle.py
+    mpirun -n 12 python parle_mpi.py
     ```
 
 ### Special cases
