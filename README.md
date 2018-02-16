@@ -17,29 +17,33 @@ In both cases, we construct an optimizer class that initializes the requisite bu
 
 ### Instructions for running the code
 
-The MPI version works great for small experiments and prototyping while the second version is a good alternative for larger networks, e.g., [wide-residual networks](https://arxiv.org/abs/1605.07146) used in the paper. The various parameters for Parle are:
-- ``L`` is the number of gradient updates performed on each replica before synchronizing the weights with the master
-- ``gamma`` controls how far successive gradient updates on each replica are allowed to go from the previous checkpoint, i.e., the last instant when weights were synchronized with the master. This is the same as the step-size in proximal gradient descent algorithms.
-- ``rho`` controls how far each replica moves from the master. The weights of the master are the average of the weights of all the replicas while each replica gets pulled towards this average with a force that is proportional to ``rho``.
-- ``n`` is the number of replicas. The code distributes these replicas on all available GPUs. For the MPI version, this is controlled by ``MPI.RANK``.
+The MPI version works great for small experiments and prototyping while the second version is a good alternative for larger networks, e.g., [wide-residual networks](https://arxiv.org/abs/1605.07146) used in the paper.
 
-The algorithm is very insensitive to the values of ``L, gamma, rho`` and the only important hyper-parameter is the learning rate ``lr``. It is advisable to set ``lr`` to be the same as SGD. The number of epochs ``B`` for Parle is typically much smaller than SGD and 5-10 epochs are sufficient to train on MNIST or CIFAR-10/100.
+Parle is **very insensitive to hyper-parameters**. A description for some of the parameters and their intuition follows.
+- the learning rate ``lr`` is set to be the same as SGD, along with the same drop schedule. It is advisable to train with SGD for a few epochs and then use the same ``lr`` for Parle.
+- ``gamma`` controls how far successive gradient updates on each replica are allowed to go from the previous checkpoint, i.e., the last instant when weights were synchronized with the master. This is the same as the step-size in proximal point iteration.
+- ``rho`` controls how far each replica moves from the master. The weights of the master are the average of the weights of all the replicas while each replica gets pulled towards this average with a force that is proportional to ``rho``.
+- ``L`` is the number of gradient updates performed on each replica (worker) before synchronizing the weights with the master. You can safely fix this to 25. Alternatively, you set this to ``L = gamma x lr`` which has the advantage of being slightly faster towards the end of training.
+Proximal point iteration is insensitive to both ``gamma`` and ``rho`` and the above code uses a default decaying schedules for these, which should typically work. In particular, we set ``gamma = rho = 100*(1-/(2 nb)^(k/L)`` where ``nb`` is the number of mini-batches per epoch and ``k`` is the current iteration number. ``L`` is the number of weight updates per synchronization, as above.
+- ``n`` is the number of replicas. The code distributes these replicas on all available GPUs. For the MPI version, this is controlled by ``MPI.RANK``. In general, larger the ``n``, the better Parle works. Each replica can itself be data-parallel using multiple GPUs.
+
+The number of epochs ``B`` for Parle is typically much smaller than SGD and 5-10 epochs are sufficient to train on MNIST or CIFAR-10/100.
 
 1. Execute ``python parle_mpi.py -h`` to get a list of all arguments and defaults. You can train LeNet on MNIST with 3 replicas using
     ```
     python parle_mpi.py -n 3
     ```
-2. Execute ``python parle.py -h`` to get a list of all arguments and defaults. You can train All-CNN on CIFAR-10 with 3 replicas using
+2. You can train All-CNN on CIFAR-10 with 3 replicas using
     ```
-    python parle.py -n 3 -m allcnn
+    python parle_mpi.py -n 3 -m allcnn
     ```
+3. You can run the MPI version with 12 replicas as
 
-You can run the MPI version using:
-```
-mpirun -n 12 python parle.py
-```
+    ```
+    mpirun -n 12 python parle.py
+    ```
 
 ### Special cases
 1. Setting ``n=1, L=1, gamma=0, rho=0`` makes Parle equivalent to SGD; the implementation here uses Nesterov's momentum.
 2. Setting ``n=1, rho=0`` decouples the replicas from the master. In this case, Parle becomes equivalent to executing [Entropy-SGD: biasing gradient descent into wide valleys](https://arxiv.org/abs/1611.01838); see the code for the latter [here](https://github.com/ucla-vision/entropy-sgd).
-3. Setting ``L=1, gamma=0`` makes Parle equivalent to [Elastic-SGD](https://arxiv.org/abs/1412.6651); the code for the latter by the original authors is [here](https://github.com/sixin-zh/mpiT).
+3. Setting ``L=1, gamma=0`` makes Parle equivalent to [Elastic-SGD](https://arxiv.org/abs/1412.6651); the code for the latter by the original authors is [here](https://github.com/sixin-zh/mpiT). Parle uses an annealing schedule on ``rho`` however, which makes it faster and generalize better than vanilla Elastic-SGD.
