@@ -128,7 +128,6 @@ def parle_step(sync=False):
             if opt['cuda']:
                 xa[p] = xa[p].cuda()
 
-        comm.Reduce(s['f'], s['favg'], op=MPI.SUM, root=0)
         comm.Barrier()
 
         if r == 0:
@@ -208,17 +207,17 @@ def train(e):
                 loss.add(f.data[0])
 
                 if b % 100 == 0 and b > 0:
-                    print '[%03d][%03d/%03d] %.3f %.3f%%'%(e, b, opt['nb'], \
-                            loss.value()[0], top1.value()[0])
+                    print('[%03d][%03d/%03d] %.3f %.3f%%'%(e, b, opt['nb'], \
+                            loss.value()[0], top1.value()[0]))
 
             parle_step()
 
         # setup value for sync
-        opt['state']['f'][0] = loss.value()[0]
+        #opt['state']['f'][0] = loss.value()[0]
         parle_step(sync=True)
 
     r = dict(f=loss.value()[0], top1=top1.value()[0])
-    print '+[%02d] %.3f %.3f%%'%(e, r['f'], r['top1'])
+    print('+[%02d] %.3f %.3f%%', e, r['f'], r['top1'])
     return r
 
 def dry_feed(m):
@@ -275,12 +274,12 @@ def validate(e):
         loss.add(f.data[0])
 
     r = dict(f=loss.value()[0], top1=top1.value()[0])
-    print '*[%02d] %.3f %.3f%%'%(e, r['f'], r['top1'])
+    print('*[%02d] %.3f %.3f%%'%(e, r['f'], r['top1']))
     return r
 
 for e in range(opt['B']):
     if opt['r'] == 0:
-        print ''
+        print()
 
     r = train(e)
     comm.Barrier()
