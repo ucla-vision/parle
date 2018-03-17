@@ -217,7 +217,7 @@ def train(e):
         parle_step(sync=True)
 
     r = dict(f=loss.value()[0], top1=top1.value()[0])
-    print('+[%02d] %.3f %.3f%%', e, r['f'], r['top1'])
+    print('+[%02d] %.3f %.3f%%'%(e, r['f'], r['top1']))
     return r
 
 def dry_feed(m):
